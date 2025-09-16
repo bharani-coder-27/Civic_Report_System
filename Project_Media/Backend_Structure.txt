@@ -1,0 +1,35 @@
+civic-backend/
+│── prisma/
+│   └── schema.prisma          # Database schema
+│── src/
+│   ├── citizens/              # For citizen-side features
+│   │   ├── routes/            # Citizen routes
+│   │   │   └── reportRoutes.js
+│   │   ├── controllers/       # Citizen controllers
+│   │   │   └── reportController.js
+│   │   ├── models/            # Citizen DB access
+│   │   │   └── reportModel.js
+│   │   └── middlewares/       # Citizen-specific middlewares (if any)
+│   │
+│   ├── admin/                 # For admin/staff-side features
+│   │   ├── routes/
+│   │   │   └── adminRoutes.js
+│   │   ├── controllers/
+│   │   │   └── adminController.js
+│   │   ├── models/
+│   │   │   └── adminModel.js
+│   │   └── middlewares/
+│   │
+│   ├── shared/                # Shared code used by both
+│   │   ├── middlewares/
+│   │   │   └── authMiddleware.js
+│   │   ├── utils/
+│   │   │   └── token.js
+│   │   └── models/            # Shared models if needed
+│   │       └── userModel.js
+│   │
+│   ├── app.js                 # Express setup
+│   └── server.js              # Server entry
+│
+│── .env
+│── package.json
