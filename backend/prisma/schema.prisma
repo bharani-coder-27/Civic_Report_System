@@ -66,22 +66,33 @@ model Department {
   reports   Report[]
 }
 
-model Zone {
-  zone_id String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name    String @db.VarChar(50)
+model District {
+  district_id String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String  @unique @db.VarChar(100)
 
-  wards   Ward[]
+  zones       Zone[]
+}
+
+model Zone {
+  zone_id     String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  district_id String   @db.Uuid
+  name        String   @db.VarChar(50)
+
+  district District @relation(fields: [district_id], references: [district_id], onDelete: Cascade)
+  wards     Ward[]
 }
 
 model Ward {
-  ward_id  String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  zone_id  String @db.Uuid
-  name     String @db.VarChar(50)
+  ward_id   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  zone_id   String   @db.Uuid
+  name      String   @db.VarChar(50)
+  ward_no   Int      @unique     // useful for mapping GeoJSON
 
-  zone     Zone   @relation(fields: [zone_id], references: [zone_id], onDelete: Cascade)
-  reports  Report[]
+  zone      Zone   @relation(fields: [zone_id], references: [zone_id], onDelete: Cascade)
+  reports   Report[]
   staffWards StaffWards[]
 }
+
 
 model Staff {
   staff_id  String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid

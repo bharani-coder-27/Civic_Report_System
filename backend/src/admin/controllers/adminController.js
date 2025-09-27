@@ -1,7 +1,9 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { createUser, findUserByEmailOrPhone } from "../../shared/models/userModel.js";
 import { createStaffProfile, getZones, getWardsByZone, getDepartments } from "../models/adminModel.js";
 import { generateToken } from "../../shared/utils/token.js";
+import { getAllReports } from "../models/adminModel.js";
+
 
 // ---------------- Register Staff ----------------
 export const registerStaff = async (req, res) => {
@@ -12,14 +14,12 @@ export const registerStaff = async (req, res) => {
       return res.status(400).json({ message: "Department, ward and position are required" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create user
     const user = await createUser({
       name,
       email,
       phone,
-      password_hash: hashedPassword,
+      password,
       role: "staff"
     });
 
@@ -99,5 +99,31 @@ export const fetchDepartments = async (req, res) => {
     res.json(departments);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch departments" });
+  }
+};
+
+export const getReportsForDashboard = async (req, res) => {
+  try {
+    const reports = await getAllReports();
+
+    const formatted = reports.map((r, idx) => ({
+      id: `RPT${String(idx + 1).padStart(3, "0")}`, // RPT001, RPT002...
+      reportedBy: r.user ? r.user.name : "Anonymous",
+      location: r.ward ? r.ward.name : "Unknown Ward",
+      locationCoords: {
+        lat: parseFloat(r.latitude),
+        lng: parseFloat(r.longitude),
+      },
+      type: r.category,
+      status: r.status,
+      description: r.description,
+      date: r.created_at.toISOString().split("T")[0], // YYYY-MM-DD
+      image: r.media.length > 0 ? r.media[0].file_url : null,
+    }));
+
+    res.json({ success: true, data: formatted });
+  } catch (error) {
+    console.error("Error fetching reports for dashboard:", error);
+    res.status(500).json({ success: false, error: "Failed to fetch reports" });
   }
 };

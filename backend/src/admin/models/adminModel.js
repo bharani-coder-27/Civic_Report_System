@@ -36,3 +36,43 @@ export const getWardsByZone = async (zoneId) => {
 export const getDepartments = async () => {
   return await prisma.department.findMany();
 };
+
+// Fetch all reports with related info
+export const getAllReports = async () => {
+  return await prisma.report.findMany({
+    include: {
+      media: true,
+      ward: true,
+      user: true,
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+  });
+};
+
+/**
+ * Assign wards to a staff member
+ */
+export async function assignWardsToStaff(staffId, wardIds) {
+  const assignments = wardIds.map((wardId) => ({
+    staff_id: staffId,
+    ward_id: wardId,
+  }));
+
+  await prisma.staffWards.createMany({
+    data: assignments,
+    skipDuplicates: true, // prevent duplicate assignments
+  });
+
+  return prisma.staff.findUnique({
+    where: { staff_id: staffId },
+    include: {
+      user: true,
+      staffWards: {
+        include: { ward: true },
+      },
+    },
+  });
+}
+
